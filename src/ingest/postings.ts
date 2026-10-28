@@ -2,6 +2,9 @@ import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { Client, collectPaginatedAPI, isFullBlock, isFullPage } from '@notionhq/client';
 import { config } from '../config.js';
+import { getPool, toVector } from '../db/client.js';
+import { embed } from '../embed.js';
+import { extractRequirements, type ExtractionUsage } from '../extract.js';
 
 export interface Posting {
   id: string;
@@ -95,4 +98,39 @@ export async function loadFromNotion(): Promise<Posting[]> {
     postings.push({ id: `notion:${page.id}`, company, title, body, source: 'notion' });
   }
   return postings;
+}
+
+// ---------------------------------------------------------------------------
+// Storing: extract requirements with Claude, embed them, and replace whatever
+// was stored for this posting before. Shared by the CLI and the web server.
+// ---------------------------------------------------------------------------
+export async function storePosting(p: Posting): Promise<{ count: number; usage: ExtractionUsage }> {
+  const { requirements, usage } = await extractRequirements(p.body);
+  const vectors = await embed(requirements.map((r) => r.text));
+
+  const pool = await getPool();
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN');
+    await client.query(
+      `INSERT INTO postings (id, company, title, body, source) VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT (id) DO UPDATE SET company = $2, title = $3, body = $4, ingested_at = now()`,
+      [p.id, p.company, p.title, p.body, p.source],
+    );
+    // Re-extracting replaces old requirements (and their saved matches).
+    await client.query('DELETE FROM requirements WHERE posting_id = $1', [p.id]);
+    for (const [i, r] of requirements.entries()) {
+      await client.query(
+        'INSERT INTO requirements (posting_id, text, kind, embedding) VALUES ($1, $2, $3, $4)',
+        [p.id, r.text, r.kind, toVector(vectors[i])],
+      );
+    }
+    await client.query('COMMIT');
+  } catch (err) {
+    await client.query('ROLLBACK');
+    throw err;
+  } finally {
+    client.release();
+  }
+  return { count: requirements.length, usage };
 }

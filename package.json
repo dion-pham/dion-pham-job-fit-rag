@@ -12,7 +12,8 @@
     "match": "tsx src/cli.ts match",
     "eval:template": "tsx evals/template.ts",
     "eval": "tsx evals/run.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "web": "tsx src/server.ts"
   },
   "devDependencies": {
     "@types/node": "^26.6.5",
