@@ -1,0 +1,42 @@
+{
+  "_note": "Sample resume for demos and screenshots. The app uses data/resume.json when it exists (gitignored, so your real resume stays private) and falls back to this file otherwise.",
+  "roles": [
+    {
+      "role": "Solutions Engineer, Acme Analytics",
+      "bullets": [
+        "Ran 80+ technical product demos and discovery calls for prospects from 50 to 2,000 employees, handling security and integration objections with Sales.",
+        "Scoped and supported 15 proofs of concept, writing success criteria with customers and troubleshooting data pipeline integrations until sign-off.",
+        "Wrote Python and JavaScript scripts against the REST API to show customers how to extend the product for their own reporting workflows.",
+        "Turned recurring customer requests into prioritized feature briefs for Product and Engineering, three of which shipped within two quarters.",
+        "Published integration guides and sample repos in GitHub that cut onboarding questions to Support by about a third."
+      ]
+    },
+    {
+      "role": "Technical Support Engineer, Northwind Software",
+      "bullets": [
+        "Resolved 40+ tickets a week for enterprise customers across API, SSO, and webhook issues while keeping a 95% satisfaction score.",
+        "Reproduced customer bugs in staging and filed detailed issues with logs and repro steps, cutting engineering back-and-forth on escalations.",
+        "Partnered with Customer Success on renewal-risk accounts, running technical health checks that helped retain two of the top ten customers."
+      ]
+    },
+    {
+      "role": "Projects",
+      "bullets": [
+        "Built a retrieval tool in TypeScript and Postgres with pgvector that matches job requirements to resume bullets using embeddings and Claude."
+      ]
+    },
+    {
+      "role": "Skills",
+      "bullets": [
+        "Languages: Python, JavaScript, TypeScript, SQL",
+        "Tools: Git, GitHub, Postman, Docker, Salesforce, Jira"
+      ]
+    },
+    {
+      "role": "Education",
+      "bullets": [
+        "B.S. in Information Systems"
+      ]
+    }
+  ]
+}

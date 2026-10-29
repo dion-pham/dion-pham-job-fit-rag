@@ -1,4 +1,4 @@
-import { copyFile, readFile, writeFile } from 'node:fs/promises';
+import { access, copyFile, readFile, writeFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { embed } from '../embed.js';
 import { getPool, toVector } from '../db/client.js';
@@ -9,12 +9,16 @@ export const ResumeFile = z.object({
 
 export type Resume = z.infer<typeof ResumeFile>;
 
-const RESUME_PATH = 'data/resume.json';
+// data/resume.json is gitignored so a real resume never gets pushed; a fresh
+// clone falls back to the committed sample until you save your own.
+const RESUME_PATH = process.env.RESUME_PATH || 'data/resume.json';
+const SAMPLE_PATH = 'data/resume.sample.json';
 const RESUME_NOTE =
   'Your master resume bullets. Each bullet is one retrieval chunk. Edit freely, then re-run `npm run ingest:resume`.';
 
 export async function readResume(path = RESUME_PATH): Promise<Resume> {
-  return ResumeFile.parse(JSON.parse(await readFile(path, 'utf8')));
+  const exists = await access(path).then(() => true, () => false);
+  return ResumeFile.parse(JSON.parse(await readFile(exists ? path : SAMPLE_PATH, 'utf8')));
 }
 
 /**

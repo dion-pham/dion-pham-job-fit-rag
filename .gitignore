@@ -3,3 +3,4 @@ node_modules/
 .cache/
 dist/
 data/resume.previous.json
+data/resume.json

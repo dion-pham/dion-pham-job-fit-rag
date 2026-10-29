@@ -1,0 +1,26 @@
+Company: Example Co
+Title: Solutions Engineer
+
+About the role
+Example Co builds developer tools for software teams. As a Solutions Engineer, you'll partner with our sales team to help prospects understand, evaluate, and adopt the product.
+
+What you'll do
+- Lead technical product demos and discovery calls with prospective customers.
+- Run proofs of concept: define success criteria, troubleshoot integrations, and get customers to a decision.
+- Write scripts and sample code that show customers how to integrate the product with their existing systems.
+- Share customer feedback and feature requests with Product and Engineering.
+- Create technical documentation and guides for common use cases.
+- Work with Customer Success to support renewals and expansion.
+
+What we're looking for
+- 2+ years in a customer-facing technical role such as solutions engineering, technical support, or consulting.
+- Ability to read and write scripts in Python or JavaScript.
+- Experience working with REST APIs and webhooks.
+- Familiarity with Git and source control workflows.
+- Strong written and verbal communication skills.
+- Willingness to travel up to 20%.
+
+Nice to have
+- Experience with cloud platforms such as AWS or GCP.
+- Background in data engineering or analytics tools.
+- Experience selling to enterprise customers.

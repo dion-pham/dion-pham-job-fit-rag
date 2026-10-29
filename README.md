@@ -4,6 +4,12 @@ Paste in a job posting, and this tool tells you which requirements your resume a
 
 I built it to run my own job search.
 
+![Check fit report: 9 of 12 requirements supported, each marked SUPPORTED or GAP, with the closest resume bullets and similarity scores](docs/screenshots/check-fit.png)
+
+![Resume page: upload a resume, then review and edit the extracted bullets before saving](docs/screenshots/resume.png)
+
+<sub>Screenshots use the sample resume (`data/resume.sample.json`) and a made-up posting (`data/postings/example-co-solutions-engineer.txt`).</sub>
+
 ## How it works
 
 ```
@@ -37,13 +43,15 @@ npm run db:up                 # starts Postgres with pgvector
 npm run db:init               # creates the tables
 ```
 
+**Your resume:** `data/resume.json` is gitignored so your real resume never gets pushed. Until you create it, the app uses the committed sample, `data/resume.sample.json`. Upload your resume on the web UI's **Resume** page, or copy the sample to `data/resume.json` and edit it.
+
 ## Usage
 
 ```bash
-npm run ingest:resume                  # embeds data/resume.json
+npm run ingest:resume                  # embeds data/resume.json (or the sample)
 npm run ingest:postings                # extracts + embeds every posting
 npm run match                          # lists posting ids
-npm run match -- file:notion-ai        # SUPPORTED / GAP report for one posting
+npm run match -- file:example-co-solutions-engineer   # SUPPORTED / GAP report for one posting
 npm run web                            # same thing in the browser at http://localhost:3000
 ```
 
@@ -68,7 +76,7 @@ Claude is called once per posting checked (requirement extraction) and once per 
 ## Evals
 
 ```bash
-npm run eval:template -- file:notion-ai   # writes evals/labels/file_notion-ai.json
+npm run eval:template -- file:example-co-solutions-engineer   # writes evals/labels/file_example-co-solutions-engineer.json
 # set each "met" to true or false by hand
 npm run eval
 ```
@@ -85,4 +93,3 @@ Precision matters most here. A false positive means the tool says you meet a req
 ## Results
 
 _Fill this in once you've labeled a few postings: precision and recall at your chosen threshold, and what kinds of requirements it gets wrong._
-# dion-pham-job-fit-rag
