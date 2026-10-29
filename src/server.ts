@@ -3,6 +3,8 @@ import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { config } from './config.js';
 import { getPool } from './db/client.js';
 import { storePosting } from './ingest/postings.js';
+import { parseResumeFile } from './ingest/parse-resume.js';
+import { readResume, saveResume, type Resume } from './ingest/resume.js';
 import { matchPosting } from './match.js';
 
 /**
@@ -68,6 +70,24 @@ async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> 
     const id = `file:${slug}`;
     const { usage } = await storePosting({ id, company, title, body: description, source: 'file' });
     return send(res, 200, { ...(await report(id)), usage });
+  }
+
+  if (req.method === 'GET' && url.pathname === '/api/resume') {
+    return send(res, 200, await readResume());
+  }
+
+  // Parse only: the browser shows the result for review, then PUTs it back to save.
+  if (req.method === 'POST' && url.pathname === '/api/resume/parse') {
+    const body = await readJson(req);
+    const filename = String(body.filename ?? '');
+    const data = Buffer.from(String(body.data ?? ''), 'base64');
+    if (!filename || data.length === 0) return send(res, 400, { error: 'Choose a resume file first.' });
+    return send(res, 200, await parseResumeFile(filename, data));
+  }
+
+  if (req.method === 'PUT' && url.pathname === '/api/resume') {
+    const count = await saveResume((await readJson(req)) as Resume);
+    return send(res, 200, { count });
   }
 
   send(res, 404, { error: 'Not found' });

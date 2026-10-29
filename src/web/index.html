@@ -8,31 +8,54 @@
   :root {
     --bg: #f7f7f5; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --border: #e3e3de;
     --accent: #2f5bd3; --ok: #1f7a4d; --ok-bg: #e6f4ec; --gap: #b4442c; --gap-bg: #fbeae5;
+    --nav-on: #ebebe6;
   }
   @media (prefers-color-scheme: dark) {
     :root {
       --bg: #161615; --panel: #1f1f1d; --text: #ececea; --muted: #9a9a94; --border: #33332f;
       --accent: #7f9cf5; --ok: #6fcf9a; --ok-bg: #1b3326; --gap: #f08a72; --gap-bg: #3a211b;
+      --nav-on: #2a2a27;
     }
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, sans-serif; }
-  main { max-width: 980px; margin: 0 auto; padding: 32px 16px 64px; }
+
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: 100vh; }
+  .sidebar { border-right: 1px solid var(--border); background: var(--panel); padding: 24px 12px; position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; gap: 4px; }
+  .brand { font-weight: 700; font-size: 17px; padding: 0 12px 16px; }
+  .sidebar a { color: var(--text); text-decoration: none; padding: 8px 12px; border-radius: 6px; }
+  .sidebar a:hover { background: var(--nav-on); }
+  .sidebar a.on { background: var(--nav-on); font-weight: 600; }
+  .sidebar .foot { margin-top: auto; padding: 0 12px; font-size: 13px; color: var(--muted); }
+  @media (max-width: 700px) {
+    .layout { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; flex-direction: row; align-items: center; flex-wrap: wrap; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--border); }
+    .brand { padding: 0 12px 0 0; }
+    .sidebar .foot { margin: 0 0 0 auto; padding: 0; }
+  }
+
+  main { max-width: 980px; width: 100%; padding: 32px 16px 64px; margin: 0 auto; min-width: 0; }
   h1 { font-size: 22px; margin: 0 0 4px; }
+  h2 { font-size: 16px; margin: 0 0 12px; }
   .sub { color: var(--muted); margin: 0 0 24px; }
   .panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin-bottom: 20px; }
   .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 600px) { .row { grid-template-columns: 1fr; } }
   label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 4px; }
   input, textarea, select { width: 100%; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 8px 10px; }
-  textarea { min-height: 220px; resize: vertical; margin-top: 12px; }
+  textarea { resize: vertical; }
+  #description { min-height: 220px; margin-top: 12px; }
   .actions { display: flex; gap: 12px; align-items: center; margin-top: 12px; flex-wrap: wrap; }
   button { font: inherit; font-weight: 600; background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 9px 18px; cursor: pointer; }
   button:disabled { opacity: .6; cursor: wait; }
+  button.secondary { background: transparent; color: var(--text); border: 1px solid var(--border); font-weight: 500; }
+  button.link { background: none; border: 0; padding: 4px 6px; color: var(--muted); font-weight: 500; }
+  button.link:hover { color: var(--gap); }
   .status { color: var(--muted); font-size: 14px; }
   .error { color: var(--gap); }
   .past { display: flex; gap: 8px; align-items: center; }
   .past select { flex: 1; }
+
   .summary { display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
   .score { font-size: 32px; font-weight: 700; }
   .bar { height: 8px; background: var(--gap-bg); border-radius: 4px; overflow: hidden; margin: 12px 0 4px; }
@@ -52,39 +75,94 @@
   .filters { display: flex; gap: 8px; margin: 12px 0 0; }
   .filters button { background: transparent; color: var(--muted); border: 1px solid var(--border); padding: 4px 12px; font-weight: 500; }
   .filters button.on { color: var(--text); border-color: var(--text); }
+
+  .upload { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+  .upload input[type=file] { flex: 1; min-width: 200px; padding: 6px; }
+  .editor-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+  .badge { font-size: 12px; font-weight: 600; color: var(--gap); }
+  .section { border-top: 1px solid var(--border); padding: 16px 0; }
+  .section-head { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
+  .section-head input { font-weight: 600; }
+  .bullet { display: flex; gap: 6px; align-items: flex-start; margin-bottom: 6px; }
+  .bullet textarea { min-height: 0; field-sizing: content; font-size: 14px; }
 </style>
 </head>
 <body>
-<main>
-  <h1>Job Fit</h1>
-  <p class="sub">Paste a job posting to see which requirements your resume backs up and which are gaps.</p>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="brand">Job Fit</div>
+    <a href="#check" data-page="check">Check fit</a>
+    <a href="#resume" data-page="resume">Resume</a>
+    <div class="foot" id="resume-count"></div>
+  </nav>
 
-  <section class="panel">
-    <form id="form">
-      <div class="row">
-        <div><label for="company">Company</label><input id="company" required></div>
-        <div><label for="title">Job title</label><input id="title" required></div>
-      </div>
-      <textarea id="description" placeholder="Paste the full job description here" required></textarea>
-      <div class="actions">
-        <button id="go" type="submit">Check fit</button>
-        <span id="status" class="status"></span>
-      </div>
-    </form>
-  </section>
+  <main>
+    <!-- Page 1: check a posting -->
+    <div data-view="check">
+      <h1>Check fit</h1>
+      <p class="sub">Paste a job posting to see which requirements your resume backs up and which are gaps.</p>
 
-  <section class="panel past">
-    <select id="past"><option value="">Previously checked postings…</option></select>
-  </section>
+      <section class="panel">
+        <form id="form">
+          <div class="row">
+            <div><label for="company">Company</label><input id="company" required></div>
+            <div><label for="title">Job title</label><input id="title" required></div>
+          </div>
+          <textarea id="description" placeholder="Paste the full job description here" required></textarea>
+          <div class="actions">
+            <button id="go" type="submit">Check fit</button>
+            <span id="status" class="status"></span>
+          </div>
+        </form>
+      </section>
 
-  <section id="report" class="panel" hidden></section>
-</main>
+      <section class="panel past">
+        <select id="past"><option value="">Previously checked postings…</option></select>
+      </section>
+
+      <section id="report" class="panel" hidden></section>
+    </div>
+
+    <!-- Page 2: upload and edit the resume -->
+    <div data-view="resume" hidden>
+      <h1>Resume</h1>
+      <p class="sub">The bullets below are what every posting is matched against. Upload a resume to replace them, review, then save.</p>
+
+      <section class="panel">
+        <h2>Upload a resume</h2>
+        <div class="upload">
+          <input type="file" id="file" accept=".pdf,.docx,.txt,.md">
+          <button id="read" type="button">Read resume</button>
+        </div>
+        <div class="actions" style="margin-top:8px">
+          <span id="upload-status" class="status">PDF, DOCX, TXT, or MD. Claude copies your bullets word for word; nothing is saved until you click Save.</span>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="editor-head">
+          <h2 style="margin:0">Your bullets</h2>
+          <span id="bullet-total" class="status"></span>
+          <span id="dirty" class="badge" hidden>Unsaved changes</span>
+        </div>
+        <div id="editor"></div>
+        <div class="actions">
+          <button id="add-section" type="button" class="secondary">+ Add section</button>
+          <button id="save" type="button">Save resume</button>
+          <button id="revert" type="button" class="secondary" hidden>Discard changes</button>
+          <span id="save-status" class="status"></span>
+        </div>
+      </section>
+    </div>
+  </main>
+</div>
 
 <script>
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-let current = null;
-let filter = 'all';
+const setStatus = (el, text, isError = false) => { el.className = isError ? 'status error' : 'status'; el.textContent = text; };
+const costText = (u) => `${u.inputTokens.toLocaleString()} input + ${u.outputTokens.toLocaleString()} output tokens on <code>${esc(u.model)}</code>` +
+  (u.costUsd === null ? ' (no price on file for this model)' : ` · <strong>$${u.costUsd.toFixed(4)}</strong>`);
 
 async function api(path, options) {
   const res = await fetch(path, options);
@@ -92,6 +170,18 @@ async function api(path, options) {
   if (!res.ok) throw new Error(data.error || res.statusText);
   return data;
 }
+
+// ---------------------------------------------------------------- navigation
+function showPage() {
+  const page = location.hash === '#resume' ? 'resume' : 'check';
+  document.querySelectorAll('[data-view]').forEach((v) => { v.hidden = v.dataset.view !== page; });
+  document.querySelectorAll('.sidebar a').forEach((a) => a.classList.toggle('on', a.dataset.page === page));
+}
+window.addEventListener('hashchange', showPage);
+
+// ---------------------------------------------------------------- check fit page
+let current = null;
+let filter = 'all';
 
 async function loadPast(selected) {
   const postings = await api('/api/postings');
@@ -114,8 +204,7 @@ function render() {
       <div><strong>${esc(r.company)} — ${esc(r.title)}</strong><br>
         <span class="status">${reqSupported}/${required.length} required · threshold ${r.threshold} · <code>${esc(r.id)}</code></span></div>
     </div>
-    ${r.usage ? `<div class="cost">Claude call: ${r.usage.inputTokens.toLocaleString()} input + ${r.usage.outputTokens.toLocaleString()} output tokens on <code>${esc(r.usage.model)}</code>${
-      r.usage.costUsd === null ? ' (no price on file for this model)' : ` · <strong>$${r.usage.costUsd.toFixed(4)}</strong>`}</div>` : ''}
+    ${r.usage ? `<div class="cost">Claude call: ${costText(r.usage)}</div>` : ''}
     <div class="bar"><div style="width:${pct}%"></div></div>
     <div class="filters">
       ${['all', 'supported', 'gap'].map((f) => `<button data-f="${f}" class="${f === filter ? 'on' : ''}">${f[0].toUpperCase() + f.slice(1)}</button>`).join('')}
@@ -141,8 +230,7 @@ function render() {
 $('form').addEventListener('submit', async (e) => {
   e.preventDefault();
   $('go').disabled = true;
-  $('status').className = 'status';
-  $('status').textContent = 'Extracting requirements with Claude and matching… (first run downloads the embedding model)';
+  setStatus($('status'), 'Extracting requirements with Claude and matching… (first run downloads the embedding model)');
   try {
     current = await api('/api/match', {
       method: 'POST',
@@ -151,11 +239,10 @@ $('form').addEventListener('submit', async (e) => {
     });
     filter = 'all';
     render();
-    $('status').textContent = '';
+    setStatus($('status'), '');
     await loadPast(current.id);
   } catch (err) {
-    $('status').className = 'status error';
-    $('status').textContent = err.message;
+    setStatus($('status'), err.message, true);
   } finally {
     $('go').disabled = false;
   }
@@ -168,12 +255,146 @@ $('past').addEventListener('change', async () => {
     filter = 'all';
     render();
   } catch (err) {
-    $('status').className = 'status error';
-    $('status').textContent = err.message;
+    setStatus($('status'), err.message, true);
   }
 });
 
-loadPast().catch((err) => { $('status').className = 'status error'; $('status').textContent = err.message; });
+// ---------------------------------------------------------------- resume page
+let resume = { roles: [] };   // what the editor shows
+let saved = { roles: [] };    // what's in data/resume.json
+let dirty = false;
+
+const bulletCount = (r) => r.roles.reduce((n, role) => n + role.bullets.filter((b) => b.trim()).length, 0);
+
+function setDirty(value) {
+  dirty = value;
+  $('dirty').hidden = !dirty;
+  $('revert').hidden = !dirty;
+  $('bullet-total').textContent = `${bulletCount(resume)} bullets in ${resume.roles.length} sections`;
+}
+
+function updateSidebarCount() {
+  $('resume-count').textContent = `Resume: ${bulletCount(saved)} bullets`;
+}
+
+function renderEditor() {
+  $('editor').innerHTML = resume.roles.map((role, r) => `
+    <div class="section">
+      <div class="section-head">
+        <input data-r="${r}" value="${esc(role.role)}" placeholder="Role, Company (or Projects, Skills…)">
+        <button type="button" class="link" data-action="remove-section" data-r="${r}" title="Remove section">Remove</button>
+      </div>
+      ${role.bullets.map((b, i) => `
+        <div class="bullet">
+          <textarea rows="2" data-r="${r}" data-b="${i}">${esc(b)}</textarea>
+          <button type="button" class="link" data-action="remove-bullet" data-r="${r}" data-b="${i}" title="Remove bullet">✕</button>
+        </div>`).join('')}
+      <button type="button" class="link" data-action="add-bullet" data-r="${r}">+ Add bullet</button>
+    </div>`).join('') || '<p class="status">No bullets yet. Upload a resume or add a section.</p>';
+  setDirty(dirty);
+}
+
+// Typing updates state without re-rendering, so focus stays put.
+$('editor').addEventListener('input', (e) => {
+  const { r, b } = e.target.dataset;
+  if (r === undefined) return;
+  if (b === undefined) resume.roles[r].role = e.target.value;
+  else resume.roles[r].bullets[b] = e.target.value;
+  setDirty(true);
+});
+
+$('editor').addEventListener('click', (e) => {
+  const { action, r, b } = e.target.dataset;
+  if (!action) return;
+  if (action === 'remove-section') resume.roles.splice(r, 1);
+  if (action === 'remove-bullet') resume.roles[r].bullets.splice(b, 1);
+  if (action === 'add-bullet') resume.roles[r].bullets.push('');
+  setDirty(true);
+  renderEditor();
+  if (action === 'add-bullet') $('editor').querySelectorAll(`textarea[data-r="${r}"]`).forEach((t, i, all) => i === all.length - 1 && t.focus());
+});
+
+$('add-section').addEventListener('click', () => {
+  resume.roles.push({ role: '', bullets: [''] });
+  setDirty(true);
+  renderEditor();
+  $('editor').querySelectorAll('.section-head input').forEach((t, i, all) => i === all.length - 1 && t.focus());
+});
+
+$('revert').addEventListener('click', () => {
+  resume = structuredClone(saved);
+  setDirty(false);
+  renderEditor();
+  setStatus($('save-status'), '');
+});
+
+const readFileBase64 = (file) => new Promise((resolve, reject) => {
+  const reader = new FileReader();
+  reader.onload = () => resolve(String(reader.result).split(',')[1] ?? '');
+  reader.onerror = () => reject(reader.error);
+  reader.readAsDataURL(file);
+});
+
+$('read').addEventListener('click', async () => {
+  const file = $('file').files[0];
+  if (!file) return setStatus($('upload-status'), 'Choose a file first.', true);
+  $('read').disabled = true;
+  setStatus($('upload-status'), `Reading ${file.name} with Claude…`);
+  try {
+    const { resume: parsed, usage } = await api('/api/resume/parse', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ filename: file.name, data: await readFileBase64(file) }),
+    });
+    resume = parsed;
+    setDirty(true);
+    renderEditor();
+    $('upload-status').className = 'status';
+    $('upload-status').innerHTML = `Found ${bulletCount(parsed)} bullets. Review them below, then click <strong>Save resume</strong>. · ${costText(usage)}`;
+  } catch (err) {
+    setStatus($('upload-status'), err.message, true);
+  } finally {
+    $('read').disabled = false;
+  }
+});
+
+$('save').addEventListener('click', async () => {
+  $('save').disabled = true;
+  setStatus($('save-status'), 'Saving and embedding bullets…');
+  try {
+    const { count } = await api('/api/resume', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(resume),
+    });
+    await loadResume();
+    setStatus($('save-status'), `Saved ${count} bullets. Check fit now matches against this resume.`);
+    // Re-match the open report against the new bullets (no Claude call).
+    if (current) {
+      current = { ...(await api('/api/report?id=' + encodeURIComponent(current.id))), usage: undefined };
+      render();
+    }
+  } catch (err) {
+    setStatus($('save-status'), err.message, true);
+  } finally {
+    $('save').disabled = false;
+  }
+});
+
+async function loadResume() {
+  saved = await api('/api/resume');
+  resume = structuredClone(saved);
+  dirty = false;
+  renderEditor();
+  updateSidebarCount();
+}
+
+window.addEventListener('beforeunload', (e) => { if (dirty) e.preventDefault(); });
+
+// ---------------------------------------------------------------- start
+showPage();
+loadPast().catch((err) => setStatus($('status'), err.message, true));
+loadResume().catch((err) => setStatus($('save-status'), err.message, true));
 </script>
 </body>
 </html>

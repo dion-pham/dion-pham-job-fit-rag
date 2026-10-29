@@ -12,7 +12,7 @@ export const config = {
   claudeModel: process.env.CLAUDE_MODEL || 'claude-sonnet-5-5',
   notionToken: process.env.NOTION_TOKEN || '',
   notionDataSourceId: process.env.NOTION_DATA_SOURCE_ID || '',
-  matchThreshold: Number(process.env.MATCH_THRESHOLD ?? 0.5),
+  matchThreshold: Number(process.env.MATCH_THRESHOLD ?? 0.35),
   topK: Number(process.env.TOP_K ?? 3),
 };
 

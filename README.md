@@ -55,12 +55,13 @@ npm run web                            # same thing in the browser at http://loc
 - The report shows a supported-requirements score, each requirement marked SUPPORTED or GAP (required vs. nice-to-have), and the closest resume bullets with similarity scores. Filter by supported or gap.
 - Reopen any posting you've checked before from the dropdown, without calling Claude again.
 - Each pasted posting is also saved to `data/postings/<company>-<title>.txt`, so the CLI and evals see it under the same `file:` id.
+- The **Resume** page (left sidebar) lets you upload a resume as PDF, DOCX, TXT, or MD. Claude splits it into sections and copies each bullet word for word; you review and edit the bullets, then **Save resume** writes `data/resume.json` (the old one is kept as `data/resume.previous.json`) and re-embeds it. Every report then matches against the new bullets. You can also edit bullets there by hand without uploading anything.
 
 The server reads `.env` at startup, so restart it after changing the API key or model.
 
 ### Cost
 
-Only requirement extraction calls Claude: one call per posting checked. Embeddings and matching run locally for free. After each check, the web UI (and `ingest:postings` in the terminal) shows that call's input and output tokens and its cost in dollars. With `claude-sonnet-5-5` a typical posting costs about 1–2 cents. Prices live in `PRICES` in `src/extract.ts`; add a row if you change `CLAUDE_MODEL`.
+Claude is called once per posting checked (requirement extraction) and once per resume upload (splitting it into bullets). Embeddings and matching run locally for free. After each check or upload, the web UI (and `ingest:postings` in the terminal) shows that call's input and output tokens and its cost in dollars. With `claude-sonnet-5-5` a typical posting costs about 1–2 cents. Prices live in `PRICES` in `src/extract.ts`; add a row if you change `CLAUDE_MODEL`.
 
 **Adding postings:** Either save them as `data/postings/<name>.txt` (see `example.txt.sample`), or point the tool at a Notion job-tracker database by setting `NOTION_TOKEN` and `NOTION_DATA_SOURCE_ID`. Each Notion page needs `Company` and `Role` properties, with the job description in the page body.
 

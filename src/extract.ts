@@ -38,13 +38,26 @@ export interface ExtractionUsage {
   costUsd: number | null;
 }
 
+/** Token counts and dollar cost for one Claude response. */
+export function usageOf(usage: Anthropic.Usage): ExtractionUsage {
+  const { input_tokens: inputTokens, output_tokens: outputTokens } = usage;
+  const price = PRICES[config.claudeModel];
+  const costUsd = price ? (inputTokens * price.input + outputTokens * price.output) / 1_000_000 : null;
+  return { model: config.claudeModel, inputTokens, outputTokens, costUsd };
+}
+
 let client: Anthropic | undefined;
+
+/** Shared Anthropic client, created on first use so commands that never call Claude don't need a key. */
+export function anthropic(): Anthropic {
+  client ??= new Anthropic({ apiKey: config.anthropicApiKey() });
+  return client;
+}
 
 export async function extractRequirements(
   postingBody: string,
 ): Promise<{ requirements: Requirement[]; usage: ExtractionUsage }> {
-  client ??= new Anthropic({ apiKey: config.anthropicApiKey() });
-  const response = await client.messages.create({
+  const response = await anthropic().messages.create({
     model: config.claudeModel,
     max_tokens: 2000,
     system: SYSTEM_PROMPT,
@@ -55,13 +68,7 @@ export async function extractRequirements(
     .filter((block) => block.type === 'text')
     .map((block) => block.text)
     .join('');
-  const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage;
-  const price = PRICES[config.claudeModel];
-  const costUsd = price ? (inputTokens * price.input + outputTokens * price.output) / 1_000_000 : null;
-  return {
-    requirements: parseRequirements(text),
-    usage: { model: config.claudeModel, inputTokens, outputTokens, costUsd },
-  };
+  return { requirements: parseRequirements(text), usage: usageOf(response.usage) };
 }
 
 /** Models sometimes wrap JSON in a code fence despite instructions; strip it before parsing. */
